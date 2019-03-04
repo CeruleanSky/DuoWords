@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Duolingo Words
-// @version      1.5
+// @version      1.6
 // @description  Shows "Words" List for all Languages
 // @author       Miriam Oe
 // @match        https://www.duolingo.com/
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/MiriamOe/DuoWords/master/DuoWordsScript.js
-// @downloadURL  https://raw.githubusercontent.com/MiriamOe/DuoWords/master/DuoWordsScript.js
+// @updateURL    https://raw.githubusercontent.com/CeruleanSky/DuoWords/master/DuoWordsScript.js
+// @downloadURL  https://raw.githubusercontent.com/CeruleanSky/DuoWords/master/DuoWordsScript.js
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.2.1/lodash.min.js
 // ==/UserScript==
@@ -84,37 +84,22 @@ function f($) {
         }
         diff /= 60; //h
         if(diff<24) {
-            switch(Math.floor(diff)) {
-                case 1: return "1 hour ago"; break;
-                default: return Math.floor(diff) + " hours ago";
-            }
+            return Math.floor(diff) + " hours " + Math.floor((diff - Math.floor(diff))*60) + " minutes ago";
         }
         diff /= 24; //day
         if(diff<7) {
-            switch(Math.floor(diff)) {
-                case 1: return "yesterday"; break;
-                default: return Math.floor(diff) + " days ago";
-            }
+            return Math.floor(diff) + " days " + Math.floor((diff - Math.floor(diff))*24) + " hours ago";
         }
         diff /= 7; //week
         if(diff<4) {
-            switch(Math.floor(diff)) {
-                case 1: return "1 week ago"; break;
-                default: return Math.floor(diff) + " weeks ago";
-            }
+            return Math.floor(diff) + " weeks " + Math.floor((diff - Math.floor(diff))*7) + " days ago";
         }
         diff /=4;
         if(diff<12) {
-            switch(Math.floor(diff)) {
-                case 1: return "1 month ago"; break;
-                default: return Math.floor(diff) + " months ago";
-            }
+            return Math.floor(diff) + " months " + Math.floor((diff - Math.floor(diff))*4) + " weeks ago";
         }
         diff /=12;
-        switch(Math.floor(diff)) {
-            case 1: return "1 year ago"; break;
-            default: return Math.floor(diff) + " years ago";
-        }
+        return Math.floor(diff) + " years " + Math.floor((diff - Math.floor(diff))*12) + " months ago";
     }
 
     //(re)loads words table
@@ -122,7 +107,7 @@ function f($) {
         //get and clear table
         var parent = document.getElementsByTagName("tbody")[0];
         parent.innerHTML="";
-        var child, word, type, time, strength;
+        var child, word, type, skill, time, strength;
         //add each word to the table
         for(var i = 0; i<vocab.length; i++) {
             child= document.createElement("tr");
@@ -135,8 +120,9 @@ function f($) {
                 type = emptyStrings(vocab[i].pos);
             }
             time = getTime(vocab[i].last_practiced_ms);
+            skill = emptyStrings(vocab[i].skill);
             strength = getStrengthBarsCode(vocab[i].strength_bars);
-            child.innerHTML = "<td>"+word+"</td><td>"+type+"</td><td>"+time+"</td><td><span class='"+strength+"'></span></span></td>";
+            child.innerHTML = "<td>"+word+"</td><td>"+type+"</td><td>"+skill+"</td><td>"+time+"</td><td><span class='"+strength+"'></span></span></td>";
             parent.append(child);
         }
     }
@@ -152,6 +138,8 @@ function f($) {
                         if(arr1[a].word_string < arr2[b].word_string) {result[a+b]=Object.assign({}, arr1[a]); a++;} else {result[a+b] = Object.assign({}, arr2[b]); b++;} break;
                     case "p":
                         if(arr1[a].pos < arr2[b].pos) {result[a+b]=Object.assign({}, arr1[a]); a++;} else {result[a+b] = Object.assign({}, arr2[b]); b++;} break;
+                    case "k":
+                        if(arr1[a].skill < arr2[b].skill) {result[a+b]=Object.assign({}, arr1[a]); a++;} else {result[a+b] = Object.assign({}, arr2[b]); b++;} break;
                     case "l":
                         if(arr1[a].last_practiced_ms > arr2[b].last_practiced_ms) {result[a+b]=Object.assign({}, arr1[a]); a++;} else {result[a+b] = Object.assign({}, arr2[b]); b++;} break;
                     case "s":
@@ -207,8 +195,9 @@ function f($) {
             switch(current) {
                 case "w": btns[0].setAttribute("class", invertArrow(btns[0].className)); break;
                 case "p": btns[1].setAttribute("class", invertArrow(btns[1].className)); break;
-                case "l": btns[2].setAttribute("class", invertArrow(btns[2].className)); break;
-                case "s": btns[3].setAttribute("class", invertArrow(btns[3].className)); break;
+                case "k": btns[2].setAttribute("class", invertArrow(btns[2].className)); break;
+                case "l": btns[2].setAttribute("class", invertArrow(btns[3].className)); break;
+                case "s": btns[3].setAttribute("class", invertArrow(btns[4].className)); break;
             }
         //else order it by the new argument
         } else {
@@ -220,6 +209,7 @@ function f($) {
             switch(current) {
                 case "w": btns[0].setAttribute("class", "_3PIPp _2Zztm rxSYY"); break;
                 case "p": btns[1].setAttribute("class", "_3PIPp _2Zztm rxSYY"); break;
+                case "k": btns[1].setAttribute("class", "_3PIPp _2Zztm rxSYY"); break;
                 case "l": btns[2].setAttribute("class", "_3PIPp _2Zztm rxSYY"); break;
                 case "s": btns[3].setAttribute("class", "_3PIPp _2Zztm rxSYY"); break;
             }
@@ -244,7 +234,7 @@ function f($) {
         var parent = document.getElementsByClassName("LFfrA _3MLiB")[0];
         var mod_table;
         if (austroasiatic){
-            mod_table = "<th class='_3PIPp _2fZva rxSYY'>Normalized String</th>";
+            mod_table = "<th class='_3PIPp _2fZva rxSYY'>Normalized String</th><th class='_3PIPp _2fZva rxSYY'>Skill</th>";
         } else{
             mod_table = "<th class='_3PIPp _2fZva rxSYY'>Part of speech</th>";
         }
@@ -259,7 +249,8 @@ function f($) {
             switch(cells[i].innerHTML) {
                 case "Word": cells[i].setAttribute('onclick', 'orderBy("w")'); break;
                 case "Part of speech": cells[i].setAttribute('onclick', 'orderBy("p")'); break;
-                case "Normalized String": cells[i].setAttribute('onclick', 'orderBy("p")'); break;                    
+                case "Normalized String": cells[i].setAttribute('onclick', 'orderBy("p")'); break;
+                case "Skill": cells[i].setAttribute('onclick', 'orderBy("k")'); break;
                 case "Last practiced": cells[i].setAttribute('onclick', 'orderBy("l")'); break;
                 case "Strength": cells[i].setAttribute('onclick', 'orderBy("s")'); break;
             }
