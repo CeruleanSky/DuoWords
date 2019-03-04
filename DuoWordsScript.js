@@ -2,7 +2,7 @@
 // @name         Duolingo Words
 // @version      1.6
 // @description  Shows "Words" List for all Languages
-// @author       Miriam Oe
+// @author       Original Author: Miriam Oe
 // @match        https://www.duolingo.com/
 // @grant        none
 // @updateURL    https://raw.githubusercontent.com/CeruleanSky/DuoWords/master/DuoWordsScript.js
