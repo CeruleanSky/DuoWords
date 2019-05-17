@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Duolingo Words
-// @version      1.6
+// @version      1.6.1
 // @description  Shows "Words" List for all Languages
-// @author       Original Author: Miriam Oe
+// @author       Miriam Oe
 // @match        https://www.duolingo.com/
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/CeruleanSky/DuoWords/master/DuoWordsScript.js
-// @downloadURL  https://raw.githubusercontent.com/CeruleanSky/DuoWords/master/DuoWordsScript.js
+// @updateURL    https://raw.githubusercontent.com/MiriamOe/DuoWords/master/DuoWordsScript.js
+// @downloadURL  https://raw.githubusercontent.com/MiriamOe/DuoWords/master/DuoWordsScript.js
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.2.1/lodash.min.js
 // ==/UserScript==
@@ -284,15 +284,21 @@ function f($) {
         if(load) {return;}
         //get menu buttons
         var menu = document.getElementsByClassName("zDDkq")[0];
+        if(!menu) {menu = document.getElementsByClassName("_2EZRi")[0];}
         if(!menu) {return;}
-        var menubtns = document.getElementsByClassName("_2rS3d");
+        var menubtns = document.getElementsByClassName("_3F_8q")[0].getElementsByTagName("a");
+        var newmenu = true;
+        if(!menubtns) {document.getElementsByClassName("_2rS3d"); newmenu=false;}
         if(!menubtns) {return;}
 
         //check if "words" exists
         var menuexists = false;
-        var ind;
+        var ind = 0;
+        var menupath;
         for(var i = 0; i<menubtns.length; i++) {
-            if(menubtns[i].getElementsByTagName("a")[0].pathname=="/words") {
+            if(newmenu){menupath = menubtns[i].pathname;}
+            else {menupath = menubtns[i].getElementsByTagName("a")[0].pathname;}
+            if(menupath=="/words") {
                 menuexists=true;
                 ind = i;
             }
@@ -300,21 +306,49 @@ function f($) {
         load = true;
 
         //if the button exists, replace the link. otherwise create the button
-        var wordtext = document.createElement("p");
-        wordtext.setAttribute("class", "_2QyU5");
-        wordtext.setAttribute("onclick", "showWords(this)");
-        wordtext.appendChild(document.createTextNode("Words"));
+        var wordtext;
+        if(!newmenu){
+            wordtext = document.createElement("p");
+            wordtext.setAttribute("class", "_2QyU5");
+            wordtext.setAttribute("onclick", "showWords(this)");
+            wordtext.appendChild(document.createTextNode("Words"));
+        } else {
+            wordtext = document.createElement("a");
+            wordtext.setAttribute("class", "_2JYbA iDKFi");
+            wordtext.setAttribute("onclick", "showWords(this)");
+            var wordimage = document.createElement("img");
+            wordimage.setAttribute("class", "_1kL63");
+            wordimage.setAttribute("src", "//d35aaqx5ub95lt.cloudfront.net/images/icons/words.svg");
+            var wordspan1 = document.createElement("span");
+            wordspan1.setAttribute("class", "_1-Eux iDKFi");
+            var wordspan2 = document.createElement("span");
+            wordspan2.setAttribute("class", "_1KHTi _1OomF");
+            wordspan2.appendChild(document.createTextNode("Words"));
+            wordspan1.appendChild(wordspan2);
+            wordtext.appendChild(wordimage);
+            wordtext.appendChild(wordspan1);
+        }
         if(menuexists) {
             menubtns[ind].replaceChild(wordtext, menubtns[ind].getElementsByTagName("a")[0]);
         } else {
-            var wordbtn = document.createElement("li");
-            wordbtn.setAttribute("class", "_2rS3d");
-            wordbtn.appendChild(wordtext);
-            menu.insertBefore(wordbtn, menubtns[1]);
+            var wordbtn;
+            if(!newmenu){
+                wordbtn = document.createElement("li");
+                wordbtn.setAttribute("class", "_2rS3d");
+                wordbtn.appendChild(wordtext);
+                menu.insertBefore(wordbtn, menubtns[1]);
+            } else {
+                menubtns[0].parentNode.insertBefore(wordtext,menubtns[0])
+                //var worddiv = document.createElement("div");
+                //worddiv.setAttribute("class","_1KkQH");
+                //menubtns[1].parentNode.insertBefore(worddiv, menubtns[1]);
+
+            }
         }
     }
 
     $(document).ready(function () {
+        debugger;
         init();
         getData(true);
         createWordButton();
