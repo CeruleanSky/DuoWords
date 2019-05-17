@@ -11,6 +11,21 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.2.1/lodash.min.js
 // ==/UserScript==
 
+//Changelog from Miriam Oe's 1.5
+//It offers the following enhancements
+//
+//    Works with the new design
+//    Japanese has an extra column for the Chinese Pronunciation(could probably be enabled for other austroasiatic languages as well)
+//    More precise times for the last studied column.
+//
+//Current bugs that may or may never get fixed:
+//
+//    You need to click Words twice, the second time after a bit of time to make sure everything loads
+//   The placement of the button is a bit off and pushes the other buttons together on the menubar
+//    Really needs to be cleaned up and more of the html classes need to be ported.
+
+
+
 function inject(f) { 
     var script = document.createElement('script');
     script.type = 'text/javascript';
